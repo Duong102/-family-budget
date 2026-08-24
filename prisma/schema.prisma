@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+enum WalletType {
+  CASH
+  BANK
+  CREDIT
+  EWALLET
+  OTHER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+model Household {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  createdAt  DateTime @default(now())
+
+  users        User[]
+  wallets      Wallet[]
+  categories   Category[]
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(MEMBER)
+  createdAt    DateTime @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+}
+
+model Wallet {
+  id             String     @id @default(cuid())
+  name           String
+  type           WalletType @default(CASH)
+  initialBalance Float      @default(0)
+  createdAt      DateTime   @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  transactions       Transaction[] @relation("WalletTransactions")
+  incomingTransfers  Transaction[] @relation("TransferToWallet")
+}
+
+model Category {
+  id        String          @id @default(cuid())
+  name      String
+  type      TransactionType
+  icon      String?
+  color     String?
+  createdAt DateTime        @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model Transaction {
+  id        String          @id @default(cuid())
+  type      TransactionType
+  amount    Float
+  note      String?
+  date      DateTime
+  createdAt DateTime        @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  walletId String
+  wallet   Wallet @relation("WalletTransactions", fields: [walletId], references: [id], onDelete: Cascade)
+
+  toWalletId String?
+  toWallet   Wallet? @relation("TransferToWallet", fields: [toWalletId], references: [id])
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([householdId, date])
+  @@index([walletId])
+  @@index([categoryId])
+}
+
+model Budget {
+  id          String @id @default(cuid())
+  month       Int
+  year        Int
+  limitAmount Float
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, month, year])
+  @@index([householdId, month, year])
+}
