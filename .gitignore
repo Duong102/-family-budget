@@ -50,3 +50,6 @@ next-env.d.ts
 
 # playwright
 /.playwright-mcp
+
+# local screenshots
+/Screenshot_*.png
