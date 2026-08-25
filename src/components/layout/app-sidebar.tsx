@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "@/app/(app)/logout-action";
 import { Button } from "@/components/ui/button";
+import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -69,7 +70,10 @@ export function AppSidebar({
       </nav>
 
       <div className="border-t p-3">
-        <p className="truncate px-3 text-sm text-muted-foreground">{userName}</p>
+        <div className="flex items-center justify-between px-3">
+          <p className="truncate text-sm text-muted-foreground">{userName}</p>
+          <ThemeToggleButton />
+        </div>
         <form action={logoutAction}>
           <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" type="submit">
             <LogOut className="size-4" />
