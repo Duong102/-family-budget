@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendChart } from "@/components/reports/trend-chart";
 import { CategoryPieChart } from "@/components/reports/category-pie-chart";
+import { ExportReportPdfButton } from "@/components/reports/export-report-pdf-button";
 
 export default async function ReportsPage({
   searchParams,
@@ -33,52 +34,57 @@ export default async function ReportsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Báo cáo</h1>
-        <p className="text-sm text-muted-foreground">Thống kê thu chi của hộ gia đình</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Báo cáo</h1>
+          <p className="text-sm text-muted-foreground">Thống kê thu chi của hộ gia đình</p>
+        </div>
+        <ExportReportPdfButton targetId="report-printable" month={month} year={year} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Xu hướng thu chi 6 tháng gần nhất</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TrendChart data={trend} />
-        </CardContent>
-      </Card>
+      <div id="report-printable" className="flex flex-col gap-6 bg-background">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Xu hướng thu chi 6 tháng gần nhất</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TrendChart data={trend} />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Tỷ trọng chi theo danh mục</CardTitle>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/reports?month=${prevDate.getMonth() + 1}&year=${prevDate.getFullYear()}`}>
-                <ChevronLeft className="size-4" />
-              </Link>
-            </Button>
-            <span className="text-sm font-medium">
-              {MONTH_NAMES_VI[month - 1]} / {year}
-            </span>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/reports?month=${nextDate.getMonth() + 1}&year=${nextDate.getFullYear()}`}>
-                <ChevronRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <CategoryPieChart data={pieData} />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Tỷ trọng chi theo danh mục</CardTitle>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" asChild>
+                <Link href={`/reports?month=${prevDate.getMonth() + 1}&year=${prevDate.getFullYear()}`}>
+                  <ChevronLeft className="size-4" />
+                </Link>
+              </Button>
+              <span className="text-sm font-medium">
+                {MONTH_NAMES_VI[month - 1]} / {year}
+              </span>
+              <Button variant="ghost" size="icon" asChild>
+                <Link href={`/reports?month=${nextDate.getMonth() + 1}&year=${nextDate.getFullYear()}`}>
+                  <ChevronRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CategoryPieChart data={pieData} />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Chi theo hình thức thanh toán</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CategoryPieChart data={paymentMethodData} />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Chi theo hình thức thanh toán</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CategoryPieChart data={paymentMethodData} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

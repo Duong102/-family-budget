@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TransactionFormDialog } from "@/components/transactions/transaction-form-dialog";
+import { ExportTransactionsButton } from "@/components/transactions/export-transactions-button";
 import { TransactionDeleteButton } from "@/app/(app)/transactions/transaction-delete-button";
 import { FilterBar } from "@/app/(app)/transactions/filter-bar";
 import type { Prisma } from "@/generated/prisma/client";
@@ -58,7 +59,20 @@ export default async function TransactionsPage({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Giao dịch</h1>
-        <TransactionFormDialog wallets={wallets} categories={categories} />
+        <div className="flex gap-2">
+          <ExportTransactionsButton
+            transactions={transactions.map((tx) => ({
+              date: tx.date,
+              type: tx.type,
+              categoryOrToWallet: tx.type === "TRANSFER" ? tx.toWallet?.name ?? null : tx.category?.name ?? null,
+              walletName: tx.wallet.name,
+              note: tx.note,
+              userName: tx.user.name,
+              amount: tx.amount,
+            }))}
+          />
+          <TransactionFormDialog wallets={wallets} categories={categories} />
+        </div>
       </div>
 
       <FilterBar wallets={wallets} categories={categories} defaultValues={params} />
