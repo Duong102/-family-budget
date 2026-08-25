@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const [wallets, totals, budgets, recentTransactions, categories] = await Promise.all([
+  const [wallets, totals, budgets, recentTransactions, categories, goals] = await Promise.all([
     getWalletsWithBalance(user.householdId),
     getMonthlyTotals(user.householdId, year, month),
     getBudgetProgress(user.householdId, year, month),
@@ -25,6 +25,11 @@ export default async function DashboardPage() {
       take: 8,
     }),
     prisma.category.findMany({ where: { householdId: user.householdId }, orderBy: { name: "asc" } }),
+    prisma.savingsGoal.findMany({
+      where: { householdId: user.householdId },
+      orderBy: { createdAt: "asc" },
+      take: 4,
+    }),
   ]);
 
   const totalBalance = wallets.reduce((sum, w) => sum + w.balance, 0);
@@ -168,6 +173,40 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Mục tiêu tiết kiệm</CardTitle>
+          <Link href="/goals" className="text-sm text-primary hover:underline">
+            Xem tất cả
+          </Link>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {goals.length === 0 && (
+            <p className="text-sm text-muted-foreground">Chưa đặt mục tiêu nào.</p>
+          )}
+          {goals.map((goal) => {
+            const percent =
+              goal.targetAmount > 0
+                ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
+                : 0;
+            return (
+              <div key={goal.id} className="flex flex-col gap-1">
+                <div className="flex justify-between text-sm">
+                  <span className="truncate">{goal.name}</span>
+                  <span className="text-muted-foreground">{percent}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full ${percent >= 100 ? "bg-emerald-500" : "bg-primary"}`}
+                    style={{ width: `${Math.min(percent, 100)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </div>
   );
 }

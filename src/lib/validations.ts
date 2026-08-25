@@ -65,3 +65,10 @@ export const budgetSchema = z.object({
   year: z.coerce.number().int().min(2000),
   limitAmount: z.coerce.number().positive("Hạn mức phải lớn hơn 0"),
 });
+
+export const savingsGoalSchema = z.object({
+  name: z.string().trim().min(1, "Vui lòng nhập tên mục tiêu"),
+  targetAmount: z.coerce.number().positive("Số tiền mục tiêu phải lớn hơn 0"),
+  currentAmount: z.coerce.number().min(0, "Số tiền đã có không được âm").default(0),
+  targetDate: z.string().optional(),
+});

@@ -8,6 +8,7 @@ import {
   Wallet,
   Tags,
   PiggyBank,
+  Target,
   BarChart3,
   Settings,
   LogOut,
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/wallets", label: "Ví", icon: Wallet },
   { href: "/categories", label: "Danh mục", icon: Tags },
   { href: "/budgets", label: "Ngân sách", icon: PiggyBank },
+  { href: "/goals", label: "Mục tiêu tiết kiệm", icon: Target },
   { href: "/reports", label: "Báo cáo", icon: BarChart3 },
   { href: "/settings/household", label: "Hộ gia đình", icon: Settings },
 ];

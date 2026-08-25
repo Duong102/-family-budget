@@ -43,6 +43,7 @@ model Household {
   categories   Category[]
   transactions Transaction[]
   budgets      Budget[]
+  savingsGoals SavingsGoal[]
 }
 
 model User {
@@ -130,4 +131,18 @@ model Budget {
 
   @@unique([categoryId, month, year])
   @@index([householdId, month, year])
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  targetDate    DateTime?
+  createdAt     DateTime  @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
 }
