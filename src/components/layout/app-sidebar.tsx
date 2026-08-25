@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ArrowLeftRight,
+  Repeat,
   Wallet,
   Tags,
   PiggyBank,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/transactions", label: "Giao dịch", icon: ArrowLeftRight },
+  { href: "/recurring", label: "Giao dịch định kỳ", icon: Repeat },
   { href: "/wallets", label: "Ví", icon: Wallet },
   { href: "/categories", label: "Danh mục", icon: Tags },
   { href: "/budgets", label: "Ngân sách", icon: PiggyBank },

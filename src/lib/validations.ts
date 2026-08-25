@@ -72,3 +72,29 @@ export const savingsGoalSchema = z.object({
   currentAmount: z.coerce.number().min(0, "Số tiền đã có không được âm").default(0),
   targetDate: z.string().optional(),
 });
+
+export const recurringTransactionSchema = z
+  .object({
+    type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]),
+    amount: z.coerce.number().positive("Số tiền phải lớn hơn 0"),
+    walletId: z.string().min(1, "Vui lòng chọn ví"),
+    toWalletId: z.string().optional(),
+    categoryId: z.string().optional(),
+    note: z.string().optional(),
+    dayOfMonth: z.coerce.number().int().min(1, "Ngày phải từ 1 đến 31").max(31, "Ngày phải từ 1 đến 31"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "TRANSFER") {
+      if (!data.toWalletId) {
+        ctx.addIssue({ code: "custom", message: "Vui lòng chọn ví nhận", path: ["toWalletId"] });
+      } else if (data.toWalletId === data.walletId) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Ví nguồn và ví nhận phải khác nhau",
+          path: ["toWalletId"],
+        });
+      }
+    } else if (!data.categoryId) {
+      ctx.addIssue({ code: "custom", message: "Vui lòng chọn danh mục", path: ["categoryId"] });
+    }
+  });

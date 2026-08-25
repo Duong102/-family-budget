@@ -38,12 +38,13 @@ model Household {
   inviteCode String   @unique
   createdAt  DateTime @default(now())
 
-  users        User[]
-  wallets      Wallet[]
-  categories   Category[]
-  transactions Transaction[]
-  budgets      Budget[]
-  savingsGoals SavingsGoal[]
+  users                 User[]
+  wallets               Wallet[]
+  categories            Category[]
+  transactions          Transaction[]
+  budgets               Budget[]
+  savingsGoals          SavingsGoal[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model User {
@@ -57,7 +58,8 @@ model User {
   householdId String
   household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
-  transactions Transaction[]
+  transactions          Transaction[]
+  createdRecurringRules RecurringTransaction[]
 }
 
 model Wallet {
@@ -70,8 +72,10 @@ model Wallet {
   householdId String
   household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
-  transactions       Transaction[] @relation("WalletTransactions")
-  incomingTransfers  Transaction[] @relation("TransferToWallet")
+  transactions           Transaction[]          @relation("WalletTransactions")
+  incomingTransfers      Transaction[]          @relation("TransferToWallet")
+  recurringRules         RecurringTransaction[] @relation("RecurringWalletTransactions")
+  incomingRecurringRules RecurringTransaction[] @relation("RecurringTransferToWallet")
 }
 
 model Category {
@@ -85,8 +89,9 @@ model Category {
   householdId String
   household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
-  transactions Transaction[]
-  budgets      Budget[]
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
 }
 
 model Transaction {
@@ -143,6 +148,37 @@ model SavingsGoal {
 
   householdId String
   household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+}
+
+model RecurringTransaction {
+  id           String          @id @default(cuid())
+  type         TransactionType
+  amount       Float
+  note         String?
+  dayOfMonth   Int
+  active       Boolean         @default(true)
+  startDate    DateTime        @default(now())
+  endDate      DateTime?
+  lastRunMonth Int?
+  lastRunYear  Int?
+  createdAt    DateTime        @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  walletId String
+  wallet   Wallet @relation("RecurringWalletTransactions", fields: [walletId], references: [id], onDelete: Cascade)
+
+  toWalletId String?
+  toWallet   Wallet? @relation("RecurringTransferToWallet", fields: [toWalletId], references: [id])
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  createdByUserId String
+  createdByUser   User   @relation(fields: [createdByUserId], references: [id])
 
   @@index([householdId])
 }
